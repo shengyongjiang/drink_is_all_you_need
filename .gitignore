@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.idea/
+.DS_Store
+*.pt
+backend/models/
+backend/test_pipelin_images/*_cup.jpg
+backend/test_pipelin_images/*_level.jpg
+backend/test_pipelin_images/*_norm.jpg
+backend/test_pipelin_images/*_regions.jpg
+backend/test_pipelin_images/*_split.jpg
+backend/test_pipelin_images/*_yolo.jpg
