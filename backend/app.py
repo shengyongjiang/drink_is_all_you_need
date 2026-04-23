@@ -1,15 +1,18 @@
 import os
 import socket
+import threading
 from datetime import datetime
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
+
+import config
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "..")
 PAGES_DIR = os.path.join(PROJECT_ROOT, "pages")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data", "captures")
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=PAGES_DIR)
 CORS(app)
 
 
@@ -20,7 +23,9 @@ def index():
 
 @app.route("/camera")
 def camera():
-    return send_from_directory(PAGES_DIR, "camera.html")
+    return render_template("camera.html",
+                           CAPTURE_INTERVAL=config.CAPTURE_INTERVAL,
+                           ALERT_SECONDS=config.ALERT_SECONDS)
 
 
 @app.route("/upload", methods=["POST"])
@@ -56,9 +61,19 @@ def get_local_ip():
 
 
 if __name__ == "__main__":
+    from werkzeug.serving import make_server
+
     os.makedirs(DATA_DIR, exist_ok=True)
     ip = get_local_ip()
-    port = 5001
-    print(f"\n  Local:   http://localhost:{port}")
-    print(f"  Phone:   http://{ip}:{port}\n")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    http_port = 8010
+    https_port = 8012
+
+    print(f"\n  HTTP:     http://localhost:{http_port}/camera")
+    print(f"  HTTP:     http://{ip}:{http_port}/camera")
+    print(f"  HTTPS:    https://localhost:{https_port}/camera")
+    print(f"  HTTPS:    https://{ip}:{https_port}/camera\n")
+
+    http_server = make_server("0.0.0.0", http_port, app)
+    threading.Thread(target=http_server.serve_forever, daemon=True).start()
+
+    app.run(host="0.0.0.0", port=https_port, ssl_context="adhoc")
