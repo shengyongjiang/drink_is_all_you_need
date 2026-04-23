@@ -13,6 +13,8 @@ ai/tests/images/*_yolo.jpg
 ai/tests/images/*_sam2fill.jpg
 ai/sam2_fill_level/
 data/
+.claude/settings.local.json
+node_modules/
 .playwright-mcp/
 dashboard-*.png
 dashboard-*.jpg
