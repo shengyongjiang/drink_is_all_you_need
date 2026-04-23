@@ -3,26 +3,26 @@
 ## Setup
 
 ```bash
-cd backend
+cd ai
 ```
 
 ## Usage
 
 ```bash
-# Run all 7 test images (both approaches)
+# Run all test images
 uv run python tests/test_pipeline.py
 
-# Run a single image
-uv run python tests/test_pipeline.py --image test_pipelin_images/25.JPG
+# Run a single test directory
+uv run python tests/test_pipeline.py --dir tests/images/test_25
 ```
 
-Both approaches run on each image. Output is a comparison table:
+Output is a comparison table:
 
 ```
-Image           Expected  SAM1+CV     SAM2
-------------------------------------------
-25.JPG               25%     30%     30%   (34.4s + 1.1s)
-50.JPG               50%     48%     45%   (34.2s + 1.4s)
+Test            Expected  SAM1+CV     SAM2      Avg
+----------------------------------------------------
+test_25              25%     30%     30%     30%   (35.5s)
+test_50              50%     48%     45%     46%   (35.8s)
 ...
 ```
 
@@ -32,52 +32,52 @@ Image           Expected  SAM1+CV     SAM2
 
 Pipeline: YOLO11n cup detection → SAM ViT-B segmentation → water level estimation via 3 strategies (SAM region boundaries, Sobel-y edges, brightness split).
 
-Debug outputs (saved next to input image):
-- `_yolo.jpg` — YOLO bounding box overlay
-- `_cup.jpg` — SAM cup mask overlay
-- `_regions.jpg` — SAM sub-region segmentation (colored zones)
-- `_split.jpg` — split score profile chart
-- `_level.jpg` — final result: water line, ruler, fill percentage
+Debug outputs (saved in each test directory):
+- `yolo.jpg` — YOLO bounding box overlay
+- `cup.jpg` — SAM cup mask overlay
+- `regions.jpg` — SAM sub-region segmentation (colored zones)
+- `split.jpg` — split score profile chart
+- `level.jpg` — final result: water line, ruler, fill percentage
 
 ### Approach 2: SAM2 Fine-tuned for Fill Level
 
 Uses SAM2 (Hiera-Small) fine-tuned on vessel/fill-level datasets. Outputs 3 semantic masks: vessel, filled, transparent. Fill ratio = filled_pixels / vessel_pixels.
 
 Debug output:
-- `_sam2fill.jpg` — green=vessel, blue=filled, yellow=transparent
+- `sam2fill.jpg` — green=vessel, blue=filled, yellow=transparent
 
 ## Test Images
 
-All test images are in `test_pipelin_images/`. Two categories:
+Each test case is a directory under `tests/images/` containing `original.jpg`. Debug images are saved alongside it.
 
 ### Colored Liquid (tea in transparent cup)
 
-| File | Fill Level | Description |
-|------|-----------|-------------|
-| `25.JPG` | ~25% | Low fill, Lipton tea bag visible |
-| `50.JPG` | ~50% | Half full |
-| `80.JPG` | ~80% | Nearly full, Lipton tea bag visible |
+| Directory | Fill Level | Description |
+|-----------|-----------|-------------|
+| `test_25` | ~25% | Low fill, Lipton tea bag visible |
+| `test_50` | ~50% | Half full |
+| `test_80` | ~80% | Nearly full, Lipton tea bag visible |
 
 ### Transparent Water (clear water in transparent cup)
 
-| File | Fill Level | Description |
-|------|-----------|-------------|
-| `pure_10.JPG` | ~10% | Very low fill, water barely visible |
-| `pure_20.JPG` | ~20% | Low fill |
-| `pure_70.JPG` | ~70% | High fill |
-| `pure_80.JPG` | ~80% | Nearly full |
+| Directory | Fill Level | Description |
+|-----------|-----------|-------------|
+| `test_pure_10` | ~10% | Very low fill, water barely visible |
+| `test_pure_20` | ~20% | Low fill |
+| `test_pure_70` | ~70% | High fill |
+| `test_pure_80` | ~80% | Nearly full |
 
 ## Accuracy Comparison
 
-| Image | Actual | SAM1+CV | SAM2 |
-|-------|--------|---------|------|
-| 25.JPG (colored) | 25% | 30% | 30% |
-| 50.JPG (colored) | 50% | 48% | 45% |
-| 80.JPG (colored) | 80% | 71% | 68% |
-| pure_10 (transparent) | 10% | 25% | 22% |
-| pure_20 (transparent) | 20% | 28% | 32% |
-| pure_70 (transparent) | 70% | 54% | 62% |
-| pure_80 (transparent) | 80% | 75% | 76% |
+| Test | Actual | SAM1+CV | SAM2 |
+|------|--------|---------|------|
+| test_25 (colored) | 25% | 30% | 30% |
+| test_50 (colored) | 50% | 48% | 45% |
+| test_80 (colored) | 80% | 71% | 68% |
+| test_pure_10 (transparent) | 10% | 25% | 22% |
+| test_pure_20 (transparent) | 20% | 28% | 32% |
+| test_pure_70 (transparent) | 70% | 54% | 62% |
+| test_pure_80 (transparent) | 80% | 75% | 76% |
 
 ### Observations
 

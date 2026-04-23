@@ -24,7 +24,7 @@ _sam_mask_generator = None
 def _get_yolo():
     global _yolo_model
     if _yolo_model is None:
-        _yolo_model = YOLO("yolo11n.pt")
+        _yolo_model = YOLO(os.path.join(os.path.dirname(__file__), "models", "yolo11n.pt"))
     return _yolo_model
 
 
