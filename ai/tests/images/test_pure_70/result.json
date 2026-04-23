@@ -1,0 +1,16 @@
+{
+  "timestamp": "test_pure_70",
+  "processed_at": "2026-04-23T12:59:44",
+  "cup_detected": true,
+  "cup_class": "cup",
+  "cup_confidence": 0.936,
+  "cup_bbox": [
+    119,
+    94,
+    642,
+    845
+  ],
+  "sam1_level": 0.54,
+  "sam2_level": 0.619,
+  "level": 0.579
+}

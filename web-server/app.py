@@ -1,3 +1,4 @@
+import json
 import os
 import socket
 import threading
@@ -42,6 +43,120 @@ def upload():
     file.save(save_path)
 
     return jsonify({"ok": True, "timestamp": timestamp})
+
+
+@app.route("/dashboard")
+def dashboard():
+    return send_from_directory(PAGES_DIR, "dashboard.html")
+
+
+@app.route("/api/today")
+def api_today():
+    today_str = datetime.now().strftime("%Y%m%d")
+    captures = []
+
+    if os.path.isdir(DATA_DIR):
+        for name in sorted(os.listdir(DATA_DIR)):
+            if not name.startswith(today_str):
+                continue
+            result_path = os.path.join(DATA_DIR, name, "result.json")
+            if not os.path.exists(result_path):
+                continue
+            with open(result_path) as f:
+                data = json.load(f)
+            if data.get("cup_detected"):
+                data["_dir"] = name
+                captures.append(data)
+
+    captures.sort(key=lambda c: c["_dir"])
+
+    events = []
+    total_ml = 0.0
+    for i, cap in enumerate(captures):
+        ts = cap["_dir"]
+        entry = {
+            "timestamp": ts,
+            "time": f"{ts[9:11]}:{ts[11:13]}",
+            "level": cap["level"],
+        }
+        if i == 0:
+            entry["type"] = "drink"
+            entry["ml"] = 0
+        else:
+            prev_level = captures[i - 1]["level"]
+            diff = prev_level - cap["level"]
+            entry["level_before"] = prev_level
+            entry["level_after"] = cap["level"]
+            if diff > 0.01:
+                entry["type"] = "drink"
+                entry["ml"] = round(diff * config.CUP_CAPACITY_ML, 1)
+                total_ml += entry["ml"]
+            elif diff < -0.01:
+                if prev_level <= 0.30:
+                    ml = round(prev_level * config.CUP_CAPACITY_ML, 1)
+                    entry["type"] = "refill"
+                    entry["ml"] = ml
+                    total_ml += ml
+                else:
+                    entry["type"] = "refill"
+                    entry["ml"] = 0
+            else:
+                entry["type"] = "unchanged"
+                entry["ml"] = 0
+        events.append(entry)
+
+    now = datetime.now()
+    hours_elapsed = max(0, now.hour - config.ACTIVE_HOURS_START
+                        + now.minute / 60)
+    active_window = config.ACTIVE_HOURS_END - config.ACTIVE_HOURS_START
+    expected_ml = round(
+        (hours_elapsed / active_window) * config.DAILY_GOAL_ML, 1
+    ) if hours_elapsed > 0 else 0
+
+    total_ml = round(total_ml, 1)
+    progress = round(min(total_ml / config.DAILY_GOAL_ML, 1.0), 4)
+
+    status = "on_track"
+    if total_ml < expected_ml * 0.8:
+        status = "behind"
+    elif total_ml >= config.DAILY_GOAL_ML:
+        status = "completed"
+
+    return jsonify({
+        "date": now.strftime("%Y-%m-%d"),
+        "cup_capacity_ml": config.CUP_CAPACITY_ML,
+        "daily_goal_ml": config.DAILY_GOAL_ML,
+        "notification_interval": config.NOTIFICATION_INTERVAL,
+        "total_consumed_ml": total_ml,
+        "goal_progress": progress,
+        "events": events,
+        "pace": {
+            "expected_ml": expected_ml,
+            "status": status,
+        },
+    })
+
+
+@app.route("/api/capture/<timestamp>")
+def api_capture(timestamp):
+    capture_dir = os.path.join(DATA_DIR, timestamp)
+    if not os.path.isdir(capture_dir):
+        return jsonify({"error": "not found"}), 404
+
+    files = sorted(os.listdir(capture_dir))
+    images = [f for f in files if f.endswith((".jpg", ".png"))]
+
+    result = {}
+    result_path = os.path.join(capture_dir, "result.json")
+    if os.path.exists(result_path):
+        with open(result_path) as f:
+            result = json.load(f)
+
+    return jsonify({
+        "timestamp": timestamp,
+        "images": images,
+        "result": result,
+    })
 
 
 @app.route("/data/<path:filename>")

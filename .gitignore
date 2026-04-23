@@ -13,3 +13,7 @@ ai/tests/images/*_yolo.jpg
 ai/tests/images/*_sam2fill.jpg
 ai/sam2_fill_level/
 data/
+.playwright-mcp/
+dashboard-*.png
+dashboard-*.jpg
+index-page.png
