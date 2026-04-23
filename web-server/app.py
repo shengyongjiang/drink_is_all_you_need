@@ -9,7 +9,7 @@ from flask_cors import CORS
 import config
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "..")
-PAGES_DIR = os.path.join(PROJECT_ROOT, "pages")
+PAGES_DIR = os.path.join(os.path.dirname(__file__), "pages")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data", "captures")
 
 app = Flask(__name__, template_folder=PAGES_DIR)

@@ -8,9 +8,9 @@ import sys
 import time
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.join(SCRIPT_DIR, "..")
-sys.path.insert(0, BACKEND_DIR)
-sys.path.insert(0, os.path.join(BACKEND_DIR, "sam2_fill_level"))
+AI_DIR = os.path.join(SCRIPT_DIR, "..")
+sys.path.insert(0, AI_DIR)
+sys.path.insert(0, os.path.join(AI_DIR, "sam2_fill_level"))
 
 import cv2
 import numpy as np
@@ -30,8 +30,8 @@ from volume_estimator import detect_water_level, draw_split_debug, draw_level_ov
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
-IMAGE_DIR = os.path.join(BACKEND_DIR, "test_pipelin_images")
-SAM2_DIR = os.path.join(BACKEND_DIR, "sam2_fill_level")
+IMAGE_DIR = os.path.join(SCRIPT_DIR, "images")
+SAM2_DIR = os.path.join(AI_DIR, "sam2_fill_level")
 SAM2_CHECKPOINT = os.path.join(SAM2_DIR, "checkpoints", "sam2_hiera_small.pt")
 SAM2_FINETUNED = os.path.join(SAM2_DIR, "checkpoints", "SAM2_For_VesselAndFillLevel", "model_small.torch")
 SAM2_CFG = "sam2_hiera_s.yaml"
