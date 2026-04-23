@@ -1,0 +1,32 @@
+:root {
+  --slidev-slide-container-background: #7dd3fc;
+}
+
+.slidev-layout {
+  background: linear-gradient(180deg, #bae6fd 0%, #38bdf8 100%) !important;
+  color: #0c4a6e !important;
+}
+
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3 {
+  color: #0c4a6e !important;
+}
+
+.slidev-layout p,
+.slidev-layout li,
+.slidev-layout td,
+.slidev-layout th {
+  color: #164e63 !important;
+}
+
+.dark .slidev-layout {
+  background: linear-gradient(180deg, #0c4a6e 0%, #075985 100%) !important;
+  color: #e0f2fe !important;
+}
+
+.dark .slidev-layout h1,
+.dark .slidev-layout h2,
+.dark .slidev-layout h3 {
+  color: #e0f2fe !important;
+}
